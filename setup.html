@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReelMind — Setup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue-deep: #0d1b3e;
+      --blue-glow: #2463d4;
+      --orange-dusk: #f47432;
+      --orange-soft: #ff9a5c;
+      --orange-pale: #ffd4b0;
+      --white: #f5f0eb;
+      --card-bg: rgba(13, 27, 62, 0.55);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: var(--blue-deep);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 100%, rgba(244,116,50,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 70% at 80% 0%, rgba(36,99,212,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(26,58,124,0.6) 0%, transparent 80%),
+        linear-gradient(160deg, #0d1b3e 0%, #0a1628 100%);
+    }
+
+    .grain {
+      position: fixed; inset: 0; z-index: 1; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px; pointer-events: none;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 420px; height: 420px; background: rgba(244,116,50,0.12); bottom: -80px; left: -80px; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(36,99,212,0.18); top: -60px; right: -40px; animation-delay: -4s; }
+    .orb-3 { width: 200px; height: 200px; background: rgba(255,154,92,0.1); top: 40%; left: 60%; animation-delay: -8s; }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px,20px) scale(1.06); }
+    }
+
+    .card {
+      position: relative; z-index: 10;
+      width: min(500px, 92vw);
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 52px 48px 48px;
+      margin: 48px auto;
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 1px 0 rgba(255,255,255,0.12) inset;
+      animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .icon-wrap {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--orange-dusk), var(--blue-glow));
+      border-radius: 16px;
+      display: grid; place-items: center;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 24px rgba(244,116,50,0.35);
+    }
+    .icon-wrap svg { width: 28px; height: 28px; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+      background: linear-gradient(105deg, var(--white) 30%, var(--orange-pale));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(245,240,235,0.5);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(245,240,235,0.35);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .key-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 16px 52px 16px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+      letter-spacing: 0.04em;
+    }
+    .key-input::placeholder { color: rgba(245,240,235,0.2); letter-spacing: 0; }
+    .key-input:focus {
+      border-color: var(--orange-dusk);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 4px rgba(244,116,50,0.12);
+    }
+    .key-input.valid {
+      border-color: #4ade80;
+      box-shadow: 0 0 0 4px rgba(74,222,128,0.1);
+    }
+    .key-input.error {
+      border-color: #f87171;
+      box-shadow: 0 0 0 4px rgba(248,113,113,0.1);
+    }
+
+    .toggle-btn {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(245,240,235,0.3);
+      padding: 4px; border-radius: 6px;
+      transition: color 0.2s;
+      display: grid; place-items: center;
+    }
+    .toggle-btn:hover { color: var(--orange-soft); }
+    .toggle-btn svg { width: 18px; height: 18px; }
+
+    .status {
+      font-size: 0.8rem;
+      min-height: 20px;
+      margin-bottom: 20px;
+      padding-left: 4px;
+      transition: opacity 0.2s;
+    }
+    .status.error   { color: #f87171; }
+    .status.success { color: #4ade80; }
+    .status.loading { color: rgba(245,240,235,0.45); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 17px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(105deg, var(--orange-dusk) 0%, #e85d1a 50%, var(--blue-glow) 100%);
+      background-size: 200% 100%;
+      background-position: 0% 0%;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background-position 0.4s ease, transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 8px 28px rgba(244,116,50,0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-position: 100% 0%;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(244,116,50,0.4);
+    }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-text { opacity: 0.7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0 20px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: rgba(255,255,255,0.07);
+    }
+    .divider span {
+      font-size: 0.7rem;
+      color: rgba(245,240,235,0.2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .info-box {
+      background: rgba(36,99,212,0.08);
+      border: 1px solid rgba(36,99,212,0.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: rgba(245,240,235,0.45);
+      line-height: 1.5;
+    }
+
+    .info-row svg {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: #85b0ff;
+    }
+
+    .info-row a {
+      color: #85b0ff;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .info-row a:hover { opacity: 0.7; }
+  </style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="grain"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="card">
+  <div class="icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-3 9H8c0-3-3-5-3-9a7 7 0 0 1 7-7z"/>
+      <line x1="9" y1="21" x2="15" y2="21"/>
+      <line x1="9.5" y1="18" x2="14.5" y2="18"/>
+      <line x1="12" y1="6" x2="12" y2="11"/>
+      <line x1="9.5" y1="8.5" x2="14.5" y2="8.5"/>
+    </svg>
+  </div>
+
+  <h1>Welcome to ReelMind</h1>
+  <p class="subtitle">To get started, enter your Gemini API key. It's stored locally in your browser and never sent to our servers.</p>
+
+  <div class="field-label">Gemini API Key</div>
+  <div class="input-wrap">
+    <input
+      type="password"
+      class="key-input"
+      id="apiKeyInput"
+      placeholder="AIza..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="toggle-btn" id="toggleVisibility" title="Show/hide key">
+      <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <button class="submit-btn" id="saveBtn" disabled>
+    <span class="btn-text">SAVE & CONTINUE</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="divider"><span>How to get a key</span></div>
+
+  <div class="info-box">
+    <div class="info-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a> and sign in with your Google account.
+    </div>
+    <div class="info-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Click "Create API Key", copy it, and paste it above.
+    </div>
+    <div class="info-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Your key stays in your browser only — ReelMind never stores it.
+    </div>
+  </div>
+</div>
+
+<script type="module" src="setup.js"></script>
+</body>
+</html>

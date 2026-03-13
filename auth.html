@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReelMind — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue-deep: #0d1b3e;
+      --blue-glow: #2463d4;
+      --orange-dusk: #f47432;
+      --orange-soft: #ff9a5c;
+      --orange-pale: #ffd4b0;
+      --white: #f5f0eb;
+      --card-bg: rgba(13, 27, 62, 0.55);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: var(--blue-deep);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 100%, rgba(244,116,50,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 70% at 80% 0%, rgba(36,99,212,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(26,58,124,0.6) 0%, transparent 80%),
+        linear-gradient(160deg, #0d1b3e 0%, #0a1628 100%);
+    }
+
+    .grain {
+      position: fixed; inset: 0; z-index: 1; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px; pointer-events: none;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 420px; height: 420px; background: rgba(244,116,50,0.12); bottom: -80px; left: -80px; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(36,99,212,0.18); top: -60px; right: -40px; animation-delay: -4s; }
+    .orb-3 { width: 200px; height: 200px; background: rgba(255,154,92,0.1); top: 40%; left: 60%; animation-delay: -8s; }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px,20px) scale(1.06); }
+    }
+
+    .card {
+      position: relative; z-index: 10;
+      width: min(480px, 92vw);
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 52px 48px 48px;
+      margin: 48px auto;
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 1px 0 rgba(255,255,255,0.12) inset;
+      animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .icon-wrap {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--orange-dusk), var(--blue-glow));
+      border-radius: 16px;
+      display: grid; place-items: center;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 24px rgba(244,116,50,0.35);
+    }
+    .icon-wrap svg { width: 28px; height: 28px; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      background: linear-gradient(105deg, var(--white) 30%, var(--orange-pale));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(245,240,235,0.45);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* ── Mode toggle ── */
+    .mode-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 28px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 9px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: none;
+      color: rgba(245,240,235,0.35);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(105deg, var(--orange-dusk), var(--blue-glow));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(244,116,50,0.25);
+    }
+
+    /* ── Fields ── */
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(245,240,235,0.3);
+      margin-bottom: 7px;
+      display: block;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .field-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 13px;
+      padding: 15px 48px 15px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+    .field-input::placeholder { color: rgba(245,240,235,0.2); }
+    .field-input:focus {
+      border-color: var(--orange-dusk);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 4px rgba(244,116,50,0.1);
+    }
+    .field-input.valid {
+      border-color: #4ade80;
+      box-shadow: 0 0 0 4px rgba(74,222,128,0.08);
+    }
+    .field-input.error {
+      border-color: #f87171;
+      box-shadow: 0 0 0 4px rgba(248,113,113,0.08);
+    }
+
+    .toggle-btn {
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(245,240,235,0.3);
+      padding: 4px; border-radius: 6px;
+      transition: color 0.2s;
+      display: grid; place-items: center;
+    }
+    .toggle-btn:hover { color: var(--orange-soft); }
+    .toggle-btn svg { width: 17px; height: 17px; }
+
+    /* confirm password field — hidden in sign in mode */
+    .confirm-field {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+      margin-bottom: 0;
+    }
+    .confirm-field.visible {
+      max-height: 100px;
+      opacity: 1;
+      margin-bottom: 14px;
+    }
+
+    /* ── Status ── */
+    .status {
+      font-size: 0.8rem;
+      min-height: 20px;
+      margin-bottom: 18px;
+      padding-left: 2px;
+    }
+    .status.error   { color: #f87171; }
+    .status.success { color: #4ade80; }
+    .status.loading { color: rgba(245,240,235,0.4); }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(105deg, var(--orange-dusk) 0%, #e85d1a 50%, var(--blue-glow) 100%);
+      background-size: 200% 100%;
+      background-position: 0% 0%;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background-position 0.4s ease, transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 8px 28px rgba(244,116,50,0.3);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-position: 100% 0%;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(244,116,50,0.4);
+    }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      width: 17px; height: 17px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-text { opacity: 0.7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="grain"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="card">
+  <div class="icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-3 9H8c0-3-3-5-3-9a7 7 0 0 1 7-7z"/>
+      <line x1="9" y1="21" x2="15" y2="21"/>
+      <line x1="9.5" y1="18" x2="14.5" y2="18"/>
+      <line x1="12" y1="6" x2="12" y2="11"/>
+      <line x1="9.5" y1="8.5" x2="14.5" y2="8.5"/>
+    </svg>
+  </div>
+
+  <h1 id="cardTitle">Welcome back</h1>
+  <p class="subtitle" id="cardSubtitle">Sign in to access your reel library.</p>
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="signinBtn">SIGN IN</button>
+    <button class="mode-btn" id="signupBtn">CREATE ACCOUNT</button>
+  </div>
+
+  <!-- Email -->
+  <div class="field">
+    <label class="field-label" for="emailInput">Email</label>
+    <input
+      type="email"
+      class="field-input"
+      id="emailInput"
+      placeholder="you@example.com"
+      autocomplete="email"
+    />
+  </div>
+
+  <!-- Password -->
+  <div class="field">
+    <label class="field-label" for="passwordInput">Password</label>
+    <div class="input-wrap">
+      <input
+        type="password"
+        class="field-input"
+        id="passwordInput"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
+      <button class="toggle-btn" id="togglePassword" title="Show/hide password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Confirm password (signup only) -->
+  <div class="field confirm-field" id="confirmField">
+    <label class="field-label" for="confirmInput">Confirm Password</label>
+    <div class="input-wrap">
+      <input
+        type="password"
+        class="field-input"
+        id="confirmInput"
+        placeholder="••••••••"
+        autocomplete="new-password"
+      />
+      <button class="toggle-btn" id="toggleConfirm" title="Show/hide password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <button class="submit-btn" id="submitBtn">
+    <span class="btn-text">SIGN IN</span>
+    <div class="spinner"></div>
+  </button>
+</div>
+
+<script src="auth.js" type="module"></script>
+</body>
+</html>

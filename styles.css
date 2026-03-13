@@ -1,0 +1,487 @@
+:root {
+      --blue-deep: #0d1b3e;
+      --blue-mid: #1a3a7c;
+      --blue-glow: #2463d4;
+      --orange-dusk: #f47432;
+      --orange-soft: #ff9a5c;
+      --orange-pale: #ffd4b0;
+      --white: #f5f0eb;
+      --card-bg: rgba(13, 27, 62, 0.55);
+    }
+
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+  min-height: 100vh;
+  background: var(--blue-deep);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  position: relative;
+}
+
+    /* ── Background atmosphere ── */
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 100%, rgba(244,116,50,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 70% at 80% 0%, rgba(36,99,212,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(26,58,124,0.6) 0%, transparent 80%),
+        linear-gradient(160deg, #0d1b3e 0%, #0a1628 100%);
+    }
+
+    .grain {
+      position: fixed; inset: 0; z-index: 1;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+    }
+
+    /* ── Floating orbs ── */
+    .orb {
+      position: fixed; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 420px; height: 420px; background: rgba(244,116,50,0.12); bottom: -80px; left: -80px; animation-delay: 0s; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(36,99,212,0.18); top: -60px; right: -40px; animation-delay: -4s; }
+    .orb-3 { width: 200px; height: 200px; background: rgba(255,154,92,0.1); top: 40%; left: 60%; animation-delay: -8s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.06); }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative; z-index: 10;
+      width: min(520px, 92vw);
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 52px 48px 48px;
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 1px 0 rgba(255,255,255,0.12) inset;
+      animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Icon ── */
+    .icon-wrap {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--orange-dusk), var(--blue-glow));
+      border-radius: 16px;
+      display: grid; place-items: center;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 24px rgba(244,116,50,0.35);
+    }
+
+    .icon-wrap svg { width: 28px; height: 28px; }
+
+    /* ── Typography ── */
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      background: linear-gradient(105deg, var(--white) 30%, var(--orange-pale));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: rgba(245,240,235,0.5);
+      margin-bottom: 36px;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Input group ── */
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .url-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 17px 56px 17px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+
+    .url-input::placeholder { color: rgba(245,240,235,0.28); }
+
+    .url-input:focus {
+      border-color: var(--orange-dusk);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 4px rgba(244,116,50,0.12);
+    }
+
+    .url-input.valid {
+      border-color: #4ade80;
+      box-shadow: 0 0 0 4px rgba(74,222,128,0.1);
+    }
+
+    .url-input.invalid {
+      border-color: #f87171;
+      box-shadow: 0 0 0 4px rgba(248,113,113,0.1);
+    }
+
+    /* paste icon button */
+    .paste-btn {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(245,240,235,0.35);
+      padding: 4px; border-radius: 6px;
+      transition: color 0.2s;
+      display: grid; place-items: center;
+    }
+    .paste-btn:hover { color: var(--orange-soft); }
+    .paste-btn svg { width: 18px; height: 18px; }
+
+    /* ── Status message ── */
+    .status {
+      font-size: 0.8rem;
+      min-height: 20px;
+      margin-bottom: 20px;
+      transition: opacity 0.2s;
+      padding-left: 4px;
+    }
+    .status.error { color: #f87171; }
+    .status.success { color: #4ade80; }
+    .status.loading { color: rgba(245,240,235,0.5); }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      padding: 17px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(105deg, var(--orange-dusk) 0%, #e85d1a 50%, var(--blue-glow) 100%);
+      background-size: 200% 100%;
+      background-position: 0% 0%;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background-position 0.4s ease, transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      box-shadow: 0 8px 28px rgba(244,116,50,0.3);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background-position: 100% 0%;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(244,116,50,0.4);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .submit-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* spinner inside button */
+    .submit-btn .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      position: absolute; right: 20px; top: 50%;
+      transform: translateY(-50%);
+    }
+    .submit-btn.loading .spinner { display: block; }
+
+    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0 18px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: rgba(255,255,255,0.08);
+    }
+    .divider span { font-size: 0.72rem; color: rgba(245,240,235,0.25); letter-spacing: 0.08em; }
+
+    /* ── Result area ── */
+    .result-box {
+      display: none;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .result-box.visible { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin: 4px 4px 4px 0;
+      letter-spacing: 0.02em;
+    }
+    .tag-category {
+      background: rgba(244,116,50,0.18);
+      border: 1px solid rgba(244,116,50,0.35);
+      color: var(--orange-soft);
+    }
+    .tag-keyword {
+      background: rgba(36,99,212,0.18);
+      border: 1px solid rgba(36,99,212,0.35);
+      color: #85b0ff;
+    }
+    .result-summary {
+      font-size: 0.85rem;
+      color: rgba(245,240,235,0.65);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .result-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(245,240,235,0.25);
+      margin: 12px 0 6px;
+    }
+
+    .result-content {
+      font-size: 0.88rem; color: var(--white);
+      word-break: break-all;
+    }
+
+    /* ── Footer note ── */
+    .footer-note {
+      margin-top: 28px;
+      font-size: 0.73rem;
+      color: rgba(245,240,235,0.2);
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+
+    .footer-note a {
+      color: var(--orange-soft);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-note a:hover { opacity: 1; }
+
+.card {
+  
+  margin: 48px auto;
+  
+}
+
+/* ── Gear button ── */
+    .gear-btn {
+      position: absolute;
+      top: 20px; right: 20px;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      cursor: pointer;
+      color: rgba(245,240,235,0.3);
+      transition: all 0.2s;
+    }
+    .gear-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--orange-soft);
+      border-color: rgba(244,116,50,0.3);
+    }
+    .gear-btn svg { width: 16px; height: 16px; }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    /* ── Settings modal ── */
+    .settings-modal {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -48%);
+      z-index: 51;
+      width: min(420px, 90vw);
+      background: #101e42;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px;
+      padding: 28px 28px 24px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      animation: modalRise 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .settings-modal.visible,
+    .settings-modal.visible ~ .modal-overlay,
+    .modal-overlay:has(~ .settings-modal.visible) {
+      display: block;
+    }
+
+    /* Simpler approach — just toggle both together via JS */
+    .modal-overlay.visible { display: block; }
+    .settings-modal.visible { display: block; }
+
+    @keyframes modalRise {
+      from { opacity: 0; transform: translate(-50%, -44%); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .modal-close {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      border-radius: 8px;
+      display: grid; place-items: center;
+      cursor: pointer;
+      color: rgba(245,240,235,0.4);
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+    .modal-close svg { width: 13px; height: 13px; }
+
+    .modal-subtitle {
+      font-size: 0.8rem;
+      color: rgba(245,240,235,0.35);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-input-wrap {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .modal-key-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 13px 48px 13px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .modal-key-input::placeholder { color: rgba(245,240,235,0.2); letter-spacing: 0; }
+    .modal-key-input:focus {
+      border-color: var(--orange-dusk);
+      box-shadow: 0 0 0 3px rgba(244,116,50,0.12);
+    }
+
+    .toggle-btn {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(245,240,235,0.3);
+      padding: 4px; border-radius: 6px;
+      transition: color 0.2s;
+      display: grid; place-items: center;
+    }
+    .toggle-btn:hover { color: var(--orange-soft); }
+    .toggle-btn svg { width: 17px; height: 17px; }
+
+    .modal-status {
+      font-size: 0.78rem;
+      min-height: 18px;
+      margin-bottom: 14px;
+      padding-left: 2px;
+    }
+    .modal-status.error   { color: #f87171; }
+    .modal-status.success { color: #4ade80; }
+    .modal-status.loading { color: rgba(245,240,235,0.4); }
+
+    .modal-save-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(105deg, var(--orange-dusk), var(--blue-glow));
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 6px 20px rgba(244,116,50,0.25);
+      margin-bottom: 10px;
+    }
+    .modal-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .modal-save-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .modal-clear-btn {
+      width: 100%;
+      padding: 11px;
+      background: none;
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: 12px;
+      color: rgba(248,113,113,0.5);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-clear-btn:hover {
+      background: rgba(248,113,113,0.08);
+      border-color: rgba(248,113,113,0.4);
+      color: #f87171;
+    }
