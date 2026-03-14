@@ -13,6 +13,8 @@ if (!session) window.location.replace('auth.html');
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let allReels = [];
+let allCategories = [];
+let activeCategory = 'All';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -155,11 +157,128 @@ function renderCard(reel, index) {
     </div>`;
 }
 
+// ─── Categories ───────────────────────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/categories`, { headers });
+    if (!res.ok) throw new Error();
+    allCategories = (await res.json()).map(c => c.name);
+    renderCategoryPills();
+  } catch (err) {
+    console.error('Could not load categories:', err);
+  }
+}
+
+function renderCategoryPills() {
+  const row      = document.getElementById('categoryRow');
+  const container = document.getElementById('categoryPills');
+  if (!container) return;
+
+  const pills = ['All', ...allCategories];
+
+  container.innerHTML = pills.map(cat => `
+    <button class="cat-pill ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">
+      ${cat}
+    </button>
+  `).join('') + `
+    <button class="cat-pill cat-add" id="catAddBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+    <div class="cat-input-wrap" id="catInputWrap" style="display:none;">
+      <input class="cat-input" id="catInput" type="text" placeholder="New category..." maxlength="32" />
+      <button class="cat-confirm" id="catConfirm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </button>
+      <button class="cat-cancel" id="catCancel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  `;
+
+  if (row) row.style.display = 'flex';
+
+  // Pill click
+  container.querySelectorAll('.cat-pill[data-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.dataset.cat;
+      renderCategoryPills();
+      const query = document.getElementById('searchInput')?.value || '';
+      renderGrid(filterReels(query), query);
+    });
+  });
+
+  // "+" button
+  document.getElementById('catAddBtn')?.addEventListener('click', () => {
+    document.getElementById('catAddBtn').style.display = 'none';
+    const wrap = document.getElementById('catInputWrap');
+    wrap.style.display = 'flex';
+    document.getElementById('catInput').focus();
+  });
+
+  // Cancel
+  document.getElementById('catCancel')?.addEventListener('click', closeCatInput);
+
+  // Confirm
+  document.getElementById('catConfirm')?.addEventListener('click', submitNewCategory);
+
+  // Enter key
+  document.getElementById('catInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitNewCategory();
+    if (e.key === 'Escape') closeCatInput();
+  });
+}
+
+function closeCatInput() {
+  document.getElementById('catInputWrap').style.display = 'none';
+  document.getElementById('catAddBtn').style.display = 'flex';
+  document.getElementById('catInput').value = '';
+}
+
+async function submitNewCategory() {
+  const input = document.getElementById('catInput');
+  const name  = input.value.trim();
+  if (!name) return;
+
+  try {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ name })
+    });
+    if (!res.ok) throw new Error();
+
+    if (!allCategories.includes(name)) allCategories.push(name);
+    activeCategory = name;
+    closeCatInput();
+    renderCategoryPills();
+    const query = document.getElementById('searchInput')?.value || '';
+    renderGrid(filterReels(query), query);
+  } catch (err) {
+    console.error('Could not add category:', err);
+    input.style.borderColor = 'rgba(248,113,113,0.5)';
+    setTimeout(() => input.style.borderColor = '', 1000);
+  }
+}
+
 // ─── Search / filter ──────────────────────────────────────────────────────────
 function filterReels(query) {
-  if (!query.trim()) return allReels;
+  let reels = allReels;
+
+  if (activeCategory !== 'All') {
+    reels = reels.filter(r => r.categories?.some(c => c === activeCategory));
+  }
+
+  if (!query.trim()) return reels;
   const q = query.toLowerCase();
-  return allReels.filter(reel => {
+  return reels.filter(reel => {
     const inSummary    = reel.summary?.toLowerCase().includes(q);
     const inCategories = reel.categories?.some(c => c.toLowerCase().includes(q));
     const inTags       = reel.tags?.some(t => t.toLowerCase().includes(q));
@@ -268,3 +387,4 @@ document.getElementById('searchClear')?.addEventListener('click', () => {
 });
 
 loadReels();
+loadCategories();

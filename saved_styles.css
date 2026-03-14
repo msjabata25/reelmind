@@ -539,7 +539,105 @@
 
     .view-btn { flex: 1; }
 
-    .empty-state p strong { color: rgba(245,240,235,0.45); }
+    /* ── Category filter row ── */
+    .category-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+      animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    }
+
+    .category-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      color: rgba(245,240,235,0.5);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .cat-pill:hover {
+      background: rgba(255,255,255,0.09);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .cat-pill.active {
+      background: linear-gradient(105deg, rgba(244,116,50,0.25), rgba(36,99,212,0.25));
+      border-color: rgba(244,116,50,0.45);
+      color: var(--orange-soft);
+    }
+
+    .cat-add {
+      padding: 7px 12px;
+      color: rgba(245,240,235,0.35);
+    }
+
+    .cat-add svg { width: 13px; height: 13px; }
+
+    .cat-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: rise 0.2s ease both;
+    }
+
+    .cat-input {
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(244,116,50,0.35);
+      border-radius: 999px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      outline: none;
+      width: 160px;
+      transition: border-color 0.2s;
+    }
+
+    .cat-input::placeholder { color: rgba(245,240,235,0.25); }
+    .cat-input:focus { border-color: rgba(244,116,50,0.6); }
+
+    .cat-confirm, .cat-cancel {
+      width: 28px; height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .cat-confirm {
+      background: rgba(244,116,50,0.2);
+      color: var(--orange-soft);
+    }
+    .cat-confirm:hover { background: rgba(244,116,50,0.35); }
+    .cat-confirm svg { width: 12px; height: 12px; }
+
+    .cat-cancel {
+      background: rgba(255,255,255,0.06);
+      color: rgba(245,240,235,0.4);
+    }
+    .cat-cancel:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+    .cat-cancel svg { width: 12px; height: 12px; }
     .card-summary.expanded {
   display: block;
   -webkit-line-clamp: unset;
