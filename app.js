@@ -15,6 +15,30 @@ const { data: { session } } = await supabase.auth.getSession();
 if (!session) window.location.replace('auth.html');
 if (!localStorage.getItem('gemini_api_key')) window.location.replace('setup.html');
 
+// ─── State ────────────────────────────────────────────────────────────────────
+let userCategories = [];
+let lastReelId = null;
+
+async function authHeaders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${session.access_token}`
+  };
+}
+
+async function loadUserCategories() {
+  try {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/categories`, { headers });
+    if (res.ok) userCategories = (await res.json()).map(c => c.name);
+  } catch (err) {
+    console.error('Could not load categories:', err);
+  }
+}
+
+loadUserCategories();
+
 // ─── Elements ────────────────────────────────────────────────────────────────
 const input         = document.getElementById('reelUrl');
 const submitBtn     = document.getElementById('submitBtn');
@@ -132,7 +156,7 @@ function setStatus(msg, type = '') {
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
   submitBtn.classList.toggle('loading', isLoading);
-  submitBtn.querySelector('.btn-text').textContent = isLoading ? 'ANALYZING…' : 'CATEGORIZE REEL';
+  submitBtn.querySelector('.btn-text').textContent = isLoading ? 'ANALYZING…' : 'ANALYZE REEL';
 }
 
 // ─── API ─────────────────────────────────────────────────────────────────────
@@ -158,9 +182,8 @@ async function categorizeReel(url) {
   return res.json();
 }
 
-// ─── Render ──────────────────────────────────────────────────────────────────
 function renderResult(data) {
-  if (!data.summary && !data.categories && !data.tags) {
+  if (!data.summary && !data.tags) {
     resultContent.innerHTML = `<pre style="font-size:0.8rem;opacity:0.7;white-space:pre-wrap">${JSON.stringify(data, null, 2)}</pre>`;
     return;
   }
@@ -169,15 +192,96 @@ function renderResult(data) {
   if (data.summary) {
     html += `<p class="result-summary" onclick="this.classList.toggle('expanded')">${data.summary}</p>`;
   }
-  if (data.categories?.length) {
-    html += `<div class="result-section-label">Categories</div>`;
-    html += data.categories.map(c => `<span class="tag tag-category">${c}</span>`).join('');
-  }
   if (data.tags?.length) {
     html += `<div class="result-section-label">Tags</div>`;
     html += data.tags.map(t => `<span class="tag tag-keyword">#${t}</span>`).join('');
   }
+
+  // Categorize section
+  html += `<div class="result-section-label" style="margin-top:16px;">Categorize</div>`;
+  html += `<div class="categorize-row" id="categorizeRow">`;
+
+  if (userCategories.length) {
+    html += userCategories.map(cat => `
+      <button class="cat-pick-pill" onclick="pickCategory('${cat.replace(/'/g, "\\'")}')">${cat}</button>
+    `).join('');
+  }
+
+  html += `
+    <button class="cat-pick-pill cat-ai-pick" id="aiDecideBtn" onclick="aiDecideCategory()">
+      ✨ Let AI decide
+    </button>
+  </div>
+  <div id="categoryResult"></div>`;
+
   resultContent.innerHTML = html;
+}
+
+window.pickCategory = async function(cat) {
+  if (!lastReelId) return;
+  setCategorizeLoading(true);
+  try {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/reels/${lastReelId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ categories: [cat] })
+    });
+    if (!res.ok) throw new Error();
+    showCategoryResult([cat]);
+    if (!userCategories.includes(cat)) {
+      userCategories.push(cat);
+    }
+  } catch (err) {
+    console.error('Failed to save category:', err);
+  } finally {
+    setCategorizeLoading(false);
+  }
+}
+
+window.aiDecideCategory = async function() {
+  if (!lastReelId) return;
+  setCategorizeLoading(true);
+  try {
+    const apiKey = localStorage.getItem('gemini_api_key');
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/categorize-ai`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ reel_id: lastReelId, api_key: apiKey })
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    showCategoryResult(data.categories);
+    if (!userCategories.includes(data.category)) {
+      userCategories.push(data.category);
+    }
+  } catch (err) {
+    console.error('AI categorization failed:', err);
+  } finally {
+    setCategorizeLoading(false);
+  }
+}
+
+function setCategorizeLoading(loading) {
+  const row = document.getElementById('categorizeRow');
+  if (row) {
+    row.querySelectorAll('button').forEach(b => b.disabled = loading);
+    const aiBtn = document.getElementById('aiDecideBtn');
+    if (aiBtn) aiBtn.textContent = loading ? '✨ Thinking…' : '✨ Let AI decide';
+  }
+}
+
+function showCategoryResult(categories) {
+  const el = document.getElementById('categoryResult');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="result-section-label" style="margin-top:12px;">Saved under</div>
+    ${categories.map(c => `<span class="tag tag-category">${c}</span>`).join('')}
+  `;
+  // Hide the categorize row
+  const row = document.getElementById('categorizeRow');
+  if (row) row.style.display = 'none';
 }
 
 // ─── Event Listeners ─────────────────────────────────────────────────────────
@@ -227,7 +331,9 @@ submitBtn.addEventListener('click', async (e) => {
 
   try {
     const data = await categorizeReel(url);
-    setStatus('Categorized!', 'success');
+    lastReelId = data.id;
+    await loadUserCategories();
+    setStatus('Done! Now pick a category.', 'success');
     renderResult(data);
     resultBox.classList.add('visible');
   } catch (err) {

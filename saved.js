@@ -122,11 +122,31 @@ function renderCard(reel, index) {
 
       ${categories.length ? `
       <div class="card-tags-section">
-        <span class="section-label">Categories</span>
-        <div class="tags-row">
+        <div class="section-label-row">
+          <span class="section-label">Categories</span>
+          <button class="edit-cat-btn" onclick="openCatEditor(${reel.id})" title="Edit categories">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="tags-row" id="cat-tags-${reel.id}">
           ${categories.map(c => `<span class="tag tag-category">${c}</span>`).join('')}
         </div>
-      </div>` : ''}
+      </div>` : `
+      <div class="card-tags-section">
+        <div class="section-label-row">
+          <span class="section-label">Categories</span>
+          <button class="edit-cat-btn" onclick="openCatEditor(${reel.id})" title="Edit categories">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="tags-row" id="cat-tags-${reel.id}"></div>
+      </div>`}
 
       ${tags.length ? `
       <div class="card-tags-section">
@@ -302,6 +322,88 @@ function renderGrid(reels, query = '') {
   countEl.textContent = `${allReels.length} reel${allReels.length !== 1 ? 's' : ''} saved`;
   if (resultsEl) {
     resultsEl.textContent = query ? `${reels.length} result${reels.length !== 1 ? 's' : ''}` : '';
+  }
+}
+
+// ─── Category editor ──────────────────────────────────────────────────────────
+window.openCatEditor = function(reelId) {
+  // Close any existing popover
+  document.querySelectorAll('.cat-popover').forEach(p => p.remove());
+
+  const reel = allReels.find(r => r.id === reelId);
+  if (!reel) return;
+
+  const currentCats = Array.isArray(reel.categories) ? reel.categories : [];
+  const card = document.getElementById(`card-${reelId}`);
+  if (!card) return;
+
+  const popover = document.createElement('div');
+  popover.className = 'cat-popover';
+  popover.innerHTML = `
+    <div class="cat-popover-title">Edit Categories</div>
+    <div class="cat-popover-list">
+      ${allCategories.length ? allCategories.map(cat => `
+        <label class="cat-popover-item">
+          <input type="checkbox" value="${cat}" ${currentCats.includes(cat) ? 'checked' : ''} />
+          <span>${cat}</span>
+        </label>
+      `).join('') : '<p class="cat-popover-empty">No categories yet. Add one above.</p>'}
+    </div>
+    <div class="cat-popover-footer">
+      <button class="cat-popover-cancel" onclick="this.closest('.cat-popover').remove()">Cancel</button>
+      <button class="cat-popover-save" onclick="saveCatEdit(${reelId}, this)">Save</button>
+    </div>
+  `;
+
+  card.style.position = 'relative';
+  card.appendChild(popover);
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!popover.contains(e.target)) {
+        popover.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 0);
+}
+
+window.saveCatEdit = async function(reelId, btn) {
+  const popover = btn.closest('.cat-popover');
+  const checked = [...popover.querySelectorAll('input[type=checkbox]:checked')].map(i => i.value);
+
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/reels/${reelId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ categories: checked })
+    });
+    if (!res.ok) throw new Error();
+
+    // Update local state
+    const reel = allReels.find(r => r.id === reelId);
+    if (reel) reel.categories = checked;
+
+    // Update tags row in DOM
+    const tagsRow = document.getElementById(`cat-tags-${reelId}`);
+    if (tagsRow) {
+      tagsRow.innerHTML = checked.map(c => `<span class="tag tag-category">${c}</span>`).join('');
+    }
+
+    // Refresh category pills in case new ones were added
+    await loadCategories();
+
+    popover.remove();
+  } catch (err) {
+    console.error('Failed to update categories:', err);
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    btn.style.background = 'rgba(248,113,113,0.2)';
   }
 }
 
