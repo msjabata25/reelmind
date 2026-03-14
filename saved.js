@@ -342,7 +342,11 @@ window.openCatEditor = function(reelId) {
   popover.innerHTML = `
     <div class="cat-popover-title">Edit Categories</div>
     <div class="cat-popover-list">
-      ${allCategories.length ? allCategories.map(cat => `
+      <label class="cat-popover-item cat-popover-ai" id="catAiItem">
+        <span class="cat-ai-icon">✨</span>
+        <span>Let AI decide</span>
+      </label>
+      ${allCategories.length ? `<div class="cat-popover-divider"></div>` + allCategories.map(cat => `
         <label class="cat-popover-item">
           <input type="checkbox" value="${cat}" ${currentCats.includes(cat) ? 'checked' : ''} />
           <span>${cat}</span>
@@ -357,6 +361,9 @@ window.openCatEditor = function(reelId) {
 
   card.style.position = 'relative';
   card.appendChild(popover);
+
+  // Let AI decide click
+  popover.querySelector('#catAiItem')?.addEventListener('click', () => aiDecideCategoryFromPopover(reelId, popover));
 
   // Close on outside click
   setTimeout(() => {
@@ -404,6 +411,53 @@ window.saveCatEdit = async function(reelId, btn) {
     btn.textContent = 'Save';
     btn.disabled = false;
     btn.style.background = 'rgba(248,113,113,0.2)';
+  }
+}
+
+async function aiDecideCategoryFromPopover(reelId, popover) {
+  const aiItem = popover.querySelector('#catAiItem');
+  const saveBtn = popover.querySelector('.cat-popover-save');
+  const cancelBtn = popover.querySelector('.cat-popover-cancel');
+
+  aiItem.innerHTML = `<span class="cat-ai-icon">✨</span><span>Thinking…</span>`;
+  aiItem.style.pointerEvents = 'none';
+  saveBtn.disabled = true;
+  cancelBtn.disabled = true;
+
+  try {
+    const apiKey = localStorage.getItem('gemini_api_key');
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/categorize-ai`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ reel_id: reelId, api_key: apiKey })
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    // Update local state
+    const reel = allReels.find(r => r.id === reelId);
+    if (reel) reel.categories = data.categories;
+
+    // Update tags row in DOM
+    const tagsRow = document.getElementById(`cat-tags-${reelId}`);
+    if (tagsRow) {
+      tagsRow.innerHTML = data.categories.map(c => `<span class="tag tag-category">${c}</span>`).join('');
+    }
+
+    // Add new category to pill list if needed
+    if (!allCategories.includes(data.category)) {
+      allCategories.push(data.category);
+      renderCategoryPills();
+    }
+
+    popover.remove();
+  } catch (err) {
+    console.error('AI categorization failed:', err);
+    aiItem.innerHTML = `<span class="cat-ai-icon">✨</span><span>Let AI decide</span>`;
+    aiItem.style.pointerEvents = '';
+    saveBtn.disabled = false;
+    cancelBtn.disabled = false;
   }
 }
 
