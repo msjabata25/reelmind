@@ -369,6 +369,7 @@ window.openCatEditor = function(reelId) {
   setTimeout(() => {
     document.addEventListener('click', function handler(e) {
       if (!popover.contains(e.target)) {
+        aiItem.classList.remove('thinking');
         popover.remove();
         document.removeEventListener('click', handler);
       }
@@ -420,7 +421,7 @@ async function aiDecideCategoryFromPopover(reelId, popover) {
   const cancelBtn = popover.querySelector('.cat-popover-cancel');
 
   aiItem.innerHTML = `<span class="cat-ai-icon">✨</span><span>Thinking…</span>`;
-  aiItem.style.pointerEvents = 'none';
+  aiItem.classList.add('thinking');
   saveBtn.disabled = true;
   cancelBtn.disabled = true;
 
@@ -458,6 +459,7 @@ async function aiDecideCategoryFromPopover(reelId, popover) {
     aiItem.style.pointerEvents = '';
     saveBtn.disabled = false;
     cancelBtn.disabled = false;
+    aiItem.classList.remove('thinking');
   }
 }
 

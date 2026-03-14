@@ -795,3 +795,14 @@
   background: rgba(255,255,255,0.07);
   margin: 6px 0;
 }
+
+/* ── AI decide loading ── */
+@keyframes pulse-orange {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.cat-popover-ai.thinking {
+  animation: pulse-orange 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
