@@ -1,5 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// finally found the issue
 const API_BASE = 'https://reel-mind-production.up.railway.app';
 
 const SUPABASE_URL = 'https://opmpbrpfmuowxlihasch.supabase.co';
