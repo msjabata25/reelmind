@@ -29,6 +29,13 @@ async function authHeaders() {
   };
 }
 
+// ─── Platform helper ─────────────────────────────────────────────────────────
+function getPlatform(url) {
+  if (url.includes('tiktok.com')) return { name: 'TikTok', label: 'VIEW ON TIKTOK' };
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return { name: 'YouTube', label: 'VIEW ON YOUTUBE' };
+  return { name: 'Instagram', label: 'VIEW ON INSTAGRAM' };
+}
+
 // ─── Render helpers ───────────────────────────────────────────────────────────
 function renderSkeletons() {
   return `
@@ -93,6 +100,7 @@ function renderError(msg) {
 function renderCard(reel, index) {
   const categories = Array.isArray(reel.categories) ? reel.categories : [];
   const tags       = Array.isArray(reel.tags)       ? reel.tags       : [];
+  const platform   = getPlatform(reel.url);
 
   return `
     <div class="reel-card" id="card-${reel.id}" style="animation-delay: ${index * 0.07}s">
@@ -103,7 +111,7 @@ function renderCard(reel, index) {
             <circle cx="12" cy="12" r="4"/>
             <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
           </svg>
-          Instagram
+          ${platform.name}
         </div>
         <span class="card-date">${formatDate(reel.created_at)}</span>
       </div>
@@ -128,7 +136,7 @@ function renderCard(reel, index) {
 
       <div class="card-footer">
         <a href="${reel.url}" target="_blank" rel="noopener noreferrer" class="view-btn">
-          VIEW ON INSTAGRAM
+          ${platform.label}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
             <polyline points="15 3 21 3 21 9"/>
