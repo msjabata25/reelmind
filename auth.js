@@ -2,9 +2,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // ─── Supabase client ──────────────────────────────────────────────────────────
 
-const SUPABASE_URL = 'https://opmpbrpfmuowxlihasch.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wbXBicnBmbXVvd3hsaWhhc2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDIzNzQsImV4cCI6MjA4ODU3ODM3NH0.SGmNDi2OSfUtp-fPUmsO7_9zp8YD5ex07siXgBUiOm8';
-
+import { CONFIG } from './config.js';
+const SUPABASE_URL = CONFIG.SUPABASE_URL;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ─── Redirect if already logged in ───────────────────────────────────────────
